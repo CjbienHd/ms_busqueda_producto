@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MsbusquedaApplication<msbusqueda>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.busqueda_ms.msbusqueda.MsbusquedaApplication",
+            "projectName": "msbusqueda",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
