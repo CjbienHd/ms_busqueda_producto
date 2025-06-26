@@ -30,18 +30,18 @@ public class Producto {
     @Column(nullable = false, length = 250)
     private String materialPrincipal;
 
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false)
     private boolean reutilizable;
 
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false)
     private int vidaUtilMeses;
     
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false)
     private int precio;
 
     @Column(nullable = false, length = 250)
     private String categoria;
     
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false)
     private int cantidad;
 }
