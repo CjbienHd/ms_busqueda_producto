@@ -3,6 +3,8 @@ package com.busqueda_ms.msbusqueda.controller;
 import com.busqueda_ms.msbusqueda.service.ServicioBusqProducto;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +18,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+
+import com.busqueda_ms.msbusqueda.assembler.ProductoAssembler;
 import com.busqueda_ms.msbusqueda.model.Producto;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 
@@ -27,6 +34,8 @@ import com.busqueda_ms.msbusqueda.model.Producto;
 public class Control {
 
     private final ServicioBusqProducto servicioBusqProducto;
+
+    private final ProductoAssembler assembler;
 
 
     @GetMapping
@@ -82,9 +91,13 @@ public class Control {
 )
     @ApiResponse(responseCode = "200", description = "Lista de productos encontrada")
 
-    public ResponseEntity<List<Producto>> obtenerInventario() {
-            return ResponseEntity.ok().body(servicioBusqProducto.obtenerInventarioCompleto());
-    }
+    public CollectionModel<EntityModel<Producto>> obtenerInventario() {
+    List<EntityModel<Producto>> productos = servicioBusqProducto.obtenerInventarioCompleto().stream()
+        .map(assembler::toModel)
+        .toList();
+    return CollectionModel.of(productos,
+        linkTo(methodOn(Control.class).obtenerInventario()).withSelfRel());
+}
 
     // Obtener producto por ID
     @GetMapping("/inventario/{id}")
@@ -97,9 +110,10 @@ public class Control {
     @ApiResponse(responseCode = "400", description = "Ingreso de tipo de dato incorrecto"),
     @ApiResponse(responseCode = "500", description = "No se encontro producto con ID")
 })
-    public ResponseEntity<Producto> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok().body(servicioBusqProducto.obtenerPorId(id));
-    }
+    public ResponseEntity<EntityModel<Producto>> obtenerPorId(@PathVariable Long id) {
+    Producto producto = servicioBusqProducto.obtenerPorId(id);
+    return ResponseEntity.ok(assembler.toModel(producto));
+}
 
     
 }

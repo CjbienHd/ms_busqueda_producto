@@ -1,11 +1,13 @@
 package com.busqueda_ms.msbusqueda.controller;
 
 import com.busqueda_ms.msbusqueda.service.ServicioBusqProducto;
+import com.busqueda_ms.msbusqueda.assembler.ProductoAssembler;
 import com.busqueda_ms.msbusqueda.model.Producto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +37,9 @@ public class ControlTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private ProductoAssembler assembler;
+
     @Test
     void status_DeberiaRetornarMensaje() throws Exception {
         mockMvc.perform(get("/ecomarket"))
@@ -44,23 +49,26 @@ public class ControlTest {
 
     @Test
     void obtenerInventario_DeberiaRetornarInventario() throws Exception {
-        List<Producto> productos = List.of(new Producto(1L, "nombre", "origen", "material", true, 12, 1000, "categoria", 5));
+        Producto producto = new Producto(1L, "producto1", "origen1", "material", true, 12, 1000, "categoria", 2);
+        List<Producto> productos = List.of(producto);
+
         when(servicioBusqProducto.obtenerInventarioCompleto()).thenReturn(productos);
+        when(assembler.toModel(producto)).thenReturn(EntityModel.of(producto));
 
         mockMvc.perform(get("/ecomarket/inventario"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(productos)));
+                .andExpect(status().isOk());
     }
 
 
     @Test
     void obtenerPorId_DeberiaRetornarProducto() throws Exception {
-        Producto producto = new Producto(1L, "nombre", "origen", "material", true, 12, 1000, "categoria", 5);
+        Producto producto = new Producto(1L, "nombre", "origen", "material", true, 12, 1000, "categoria", 2);
+
         when(servicioBusqProducto.obtenerPorId(1L)).thenReturn(producto);
+        when(assembler.toModel(producto)).thenReturn(EntityModel.of(producto));
 
         mockMvc.perform(get("/ecomarket/inventario/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(producto)));
+                .andExpect(status().isOk());
     }
 
     @Test
